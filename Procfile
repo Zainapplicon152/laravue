@@ -1,1 +1,1 @@
-web: npm install server && node server/index.js
+web: vendor/bin/heroku-php-apache2 public/
