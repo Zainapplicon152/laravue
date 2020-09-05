@@ -45,11 +45,11 @@
                     </v-list-item-action>
                     <v-list-item-title class="grey--text text--darken-1">Browse Channels</v-list-item-title>
                 </v-list-item>
-                <v-list-item link>
+                <v-list-item link @click="logout">
                     <v-list-item-action>
                         <v-icon color="grey darken-1">mdi-cog</v-icon>
                     </v-list-item-action>
-                    <v-list-item-title class="grey--text text--darken-1">Manage Subscriptions</v-list-item-title>
+                    <v-list-item-title class="grey--text text--darken-1">Logout</v-list-item-title>
                 </v-list-item>
             </v-list>
         </v-navigation-drawer>
@@ -93,6 +93,22 @@
                     align="center"
                 >
                     <v-col>
+                        <v-snackbar
+                            v-model="snackbar"
+                        >
+                            You are Loggedin successfully
+
+                            <template v-slot:action="{ attrs }">
+                                <v-btn
+                                    color="pink"
+                                    text
+                                    v-bind="attrs"
+                                    @click="snackbar = false"
+                                >
+                                    Close
+                                </v-btn>
+                            </template>
+                        </v-snackbar>
                     </v-col>
                 </v-row>
             </v-container>
@@ -105,15 +121,17 @@
         name: "AdminComponent",
         props: {
             source: String,
+
         },
         data: () => ({
             drawer: null,
+            snackbar: false,
             items: [
-                {icon: 'mdi-trending-up', text: 'Most Popular'},
-                {icon: 'mdi-youtube-subscription', text: 'Subscriptions'},
-                {icon: 'mdi-history', text: 'History'},
-                {icon: 'mdi-playlist-play', text: 'Playlists'},
-                {icon: 'mdi-clock', text: 'Watch Later'},
+                {icon: 'trending-down', text: 'Most Popular'},
+                {icon: 'youtube-subscription', text: 'Subscriptions'},
+                {icon: 'history', text: 'History'},
+                {icon: 'playlist-play', text: 'Playlists'},
+                {icon: 'clock', text: 'Watch Later'},
             ],
             items2: [
                 {picture: 28, text: 'Joseph'},
@@ -124,8 +142,23 @@
             ],
         }),
         created() {
-            this.$vuetify.theme.dark = true
+            this.$vuetify.theme.dark = true;
         },
+        mounted() {
+            this.snackbar = localStorage.getItem('loggedin') ? true : false;
+            localStorage.removeItem('loggedin')
+        },
+        methods: {
+            logout: function () {
+                localStorage.removeItem('token');
+                this.$router.push('/login')
+                    .then(res => {
+                        this.text = "Logged Out Successfully";
+                        this.snackbar = true;
+                    })
+                    .catch(err => console.log(err))
+            }
+        }
     }
 </script>
 

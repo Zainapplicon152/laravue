@@ -2010,6 +2010,22 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "AdminComponent",
   props: {
@@ -2018,20 +2034,21 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       drawer: null,
+      snackbar: false,
       items: [{
-        icon: 'mdi-trending-up',
+        icon: 'trending-down',
         text: 'Most Popular'
       }, {
-        icon: 'mdi-youtube-subscription',
+        icon: 'youtube-subscription',
         text: 'Subscriptions'
       }, {
-        icon: 'mdi-history',
+        icon: 'history',
         text: 'History'
       }, {
-        icon: 'mdi-playlist-play',
+        icon: 'playlist-play',
         text: 'Playlists'
       }, {
-        icon: 'mdi-clock',
+        icon: 'clock',
         text: 'Watch Later'
       }],
       items2: [{
@@ -2054,6 +2071,23 @@ __webpack_require__.r(__webpack_exports__);
   },
   created: function created() {
     this.$vuetify.theme.dark = true;
+  },
+  mounted: function mounted() {
+    this.snackbar = localStorage.getItem('loggedin') ? true : false;
+    localStorage.removeItem('loggedin');
+  },
+  methods: {
+    logout: function logout() {
+      var _this = this;
+
+      localStorage.removeItem('token');
+      this.$router.push('/login').then(function (res) {
+        _this.text = "Logged Out Successfully";
+        _this.snackbar = true;
+      })["catch"](function (err) {
+        return console.log(err);
+      });
+    }
   }
 });
 
@@ -2155,11 +2189,95 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: {
     source: String
   },
-  name: "LoginComponent"
+  name: "LoginComponent",
+  data: function data() {
+    return {
+      email: '',
+      emailRules: [function (v) {
+        return !!v || 'E-mail is required';
+      }, function (v) {
+        return /.+@.+\..+/.test(v) || 'E-mail must be valid';
+      }],
+      password: '',
+      passwordRules: [function (v) {
+        return !!v || 'Password is required';
+      }],
+      loading: false,
+      snackbar: false,
+      text: '',
+      valid: true
+    };
+  },
+  methods: {
+    login: function login() {
+      var _this = this;
+
+      axios.interceptors.request.use(function (config) {
+        _this.loading = true;
+        return config;
+      }, function (error) {
+        _this.loading = false;
+        return Promise.reject(error);
+      });
+      axios.interceptors.response.use(function (response) {
+        _this.loading = false;
+        return response;
+      }, function (error) {
+        _this.loading = false;
+        return Promise.reject(error);
+      });
+      axios.post('/api/login', {
+        'email': this.email,
+        'password': this.password
+      }).then(function (res) {
+        localStorage.setItem('token', res.data.token);
+        localStorage.setItem('loggedin', true);
+
+        _this.$router.push('/admin').then(function (res) {
+          return console.log('LoggedIn Successfully');
+        })["catch"](function (err) {
+          return console.log(err);
+        });
+      })["catch"](function (err) {
+        _this.text = err.response.data.status;
+        _this.snackbar = true;
+      });
+    }
+  }
 });
 
 /***/ }),
@@ -19922,7 +20040,7 @@ var render = function() {
               _vm._v(" "),
               _c(
                 "v-list-item",
-                { attrs: { link: "" } },
+                { attrs: { link: "" }, on: { click: _vm.logout } },
                 [
                   _c(
                     "v-list-item-action",
@@ -19937,7 +20055,7 @@ var render = function() {
                   _c(
                     "v-list-item-title",
                     { staticClass: "grey--text text--darken-1" },
-                    [_vm._v("Manage Subscriptions")]
+                    [_vm._v("Logout")]
                   )
                 ],
                 1
@@ -20006,7 +20124,62 @@ var render = function() {
               _c(
                 "v-row",
                 { attrs: { justify: "center", align: "center" } },
-                [_c("v-col")],
+                [
+                  _c(
+                    "v-col",
+                    [
+                      _c(
+                        "v-snackbar",
+                        {
+                          scopedSlots: _vm._u([
+                            {
+                              key: "action",
+                              fn: function(ref) {
+                                var attrs = ref.attrs
+                                return [
+                                  _c(
+                                    "v-btn",
+                                    _vm._b(
+                                      {
+                                        attrs: { color: "pink", text: "" },
+                                        on: {
+                                          click: function($event) {
+                                            _vm.snackbar = false
+                                          }
+                                        }
+                                      },
+                                      "v-btn",
+                                      attrs,
+                                      false
+                                    ),
+                                    [
+                                      _vm._v(
+                                        "\n                                Close\n                            "
+                                      )
+                                    ]
+                                  )
+                                ]
+                              }
+                            }
+                          ]),
+                          model: {
+                            value: _vm.snackbar,
+                            callback: function($$v) {
+                              _vm.snackbar = $$v
+                            },
+                            expression: "snackbar"
+                          }
+                        },
+                        [
+                          _vm._v(
+                            "\n                        You are Loggedin successfully\n\n                        "
+                          )
+                        ]
+                      )
+                    ],
+                    1
+                  )
+                ],
                 1
               )
             ],
@@ -20102,15 +20275,44 @@ var render = function() {
                           _c(
                             "v-card-text",
                             [
+                              _c("v-progress-linear", {
+                                attrs: {
+                                  active: _vm.loading,
+                                  indeterminate: _vm.loading,
+                                  absolute: "",
+                                  top: "",
+                                  color: "white accent-4"
+                                }
+                              }),
+                              _vm._v(" "),
                               _c(
                                 "v-form",
+                                {
+                                  ref: "form",
+                                  model: {
+                                    value: _vm.valid,
+                                    callback: function($$v) {
+                                      _vm.valid = $$v
+                                    },
+                                    expression: "valid"
+                                  }
+                                },
                                 [
                                   _c("v-text-field", {
                                     attrs: {
                                       label: "Login",
                                       name: "login",
                                       "prepend-icon": "mdi-account",
-                                      type: "text"
+                                      type: "email",
+                                      rules: _vm.emailRules,
+                                      required: ""
+                                    },
+                                    model: {
+                                      value: _vm.email,
+                                      callback: function($$v) {
+                                        _vm.email = $$v
+                                      },
+                                      expression: "email"
                                     }
                                   }),
                                   _vm._v(" "),
@@ -20120,7 +20322,16 @@ var render = function() {
                                       label: "Password",
                                       name: "password",
                                       "prepend-icon": "mdi-lock",
-                                      type: "password"
+                                      type: "password",
+                                      rules: _vm.passwordRules,
+                                      required: ""
+                                    },
+                                    model: {
+                                      value: _vm.password,
+                                      callback: function($$v) {
+                                        _vm.password = $$v
+                                      },
+                                      expression: "password"
                                     }
                                   })
                                 ],
@@ -20135,14 +20346,73 @@ var render = function() {
                             [
                               _c("v-spacer"),
                               _vm._v(" "),
-                              _c("v-btn", { attrs: { color: "primary" } }, [
-                                _vm._v("Login")
-                              ])
+                              _c(
+                                "v-btn",
+                                {
+                                  attrs: {
+                                    color: "primary",
+                                    disabled: !_vm.valid
+                                  },
+                                  on: { click: _vm.login }
+                                },
+                                [_vm._v("Login")]
+                              )
                             ],
                             1
                           )
                         ],
                         1
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "v-snackbar",
+                        {
+                          scopedSlots: _vm._u([
+                            {
+                              key: "action",
+                              fn: function(ref) {
+                                var attrs = ref.attrs
+                                return [
+                                  _c(
+                                    "v-btn",
+                                    _vm._b(
+                                      {
+                                        attrs: { color: "pink", text: "" },
+                                        on: {
+                                          click: function($event) {
+                                            _vm.snackbar = false
+                                          }
+                                        }
+                                      },
+                                      "v-btn",
+                                      attrs,
+                                      false
+                                    ),
+                                    [
+                                      _vm._v(
+                                        "\n                                Close\n                            "
+                                      )
+                                    ]
+                                  )
+                                ]
+                              }
+                            }
+                          ]),
+                          model: {
+                            value: _vm.snackbar,
+                            callback: function($$v) {
+                              _vm.snackbar = $$v
+                            },
+                            expression: "snackbar"
+                          }
+                        },
+                        [
+                          _vm._v(
+                            "\n                        " +
+                              _vm._s(_vm.text) +
+                              "\n\n                        "
+                          )
+                        ]
                       )
                     ],
                     1
@@ -79457,7 +79727,14 @@ var routes = [{
 }, {
   path: '/admin',
   component: _components_AdminComponent__WEBPACK_IMPORTED_MODULE_3__["default"],
-  name: 'Admin'
+  name: 'Admin',
+  beforeEnter: function beforeEnter(to, from, next) {
+    if (localStorage.getItem('token')) {
+      next();
+    } else {
+      next('/login');
+    }
+  }
 }
 /*{
     path: '/foo',
